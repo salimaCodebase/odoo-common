@@ -6,6 +6,13 @@ commits. This model gives the loader the transaction it needs — it performs
 the load, collects everything Odoo complains about, then rolls the cursor
 back. The return value survives the rollback because it is a Python value,
 already built by the time the cursor is discarded.
+
+What it does NOT undo: anything that is not in the transaction. A sequence
+consumed by `ir.sequence` with `implementation='standard'` stays consumed, and
+a file written by `ir.attachment._file_write` stays on disk. So a dry run
+against a numbered model — `account.move` above all, where Italian numbering
+has to be unbroken — burns document numbers it cannot give back. Dry-run
+master data freely; think before dry-running documents.
 """
 
 from odoo import api, models
